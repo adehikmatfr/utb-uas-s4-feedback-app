@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Mail\FeedbackCreated;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class FeedbackController extends Controller
@@ -20,10 +21,22 @@ class FeedbackController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user_id = Auth::id(); // Get the authenticated user's ID
-        $feedbacks = Feedbacks::where('user_id', $user_id)->get(); // Fetch feedbacks belonging to the authenticated user
+
+        $query = Feedbacks::where('user_id', $user_id);
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('customer_name', 'ILIKE', "%{$search}%")
+                  ->orWhere('feedback_text', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $feedbacks = $query->get();
+
         return view('feedbacks.index', compact('feedbacks'));
     }
 
@@ -157,5 +170,16 @@ class FeedbackController extends Controller
 
         return redirect()->route('feedback.create.with.token', ['token' => $request->get('token')])
                          ->with('success', 'Feedback created successfully.');
+    }
+
+    public function createPDF()
+    {
+        $user_id = Auth::id(); // Get the authenticated user's ID
+        $feedbacks = Feedbacks::where('user_id', $user_id)->get();
+
+        // Bagian ini menggunakan view untuk membuat PDF
+        $pdfV = Pdf::loadView('feedbacks.pdf', compact('feedbacks'));
+
+        return $pdfV->download('feedback_list.pdf');
     }
 }

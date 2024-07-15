@@ -19,5 +19,6 @@ Route::post('/feedback/store', [FeedbackController::class, 'storeWithToken'])->n
 
 // Routes that require authentication
 Route::middleware(['auth'])->group(function () {
+    Route::get('feedbacks/pdf', [FeedbackController::class, 'createPDF'])->name('feedbacks.pdf');
     Route::resource('feedbacks', FeedbackController::class);
 });

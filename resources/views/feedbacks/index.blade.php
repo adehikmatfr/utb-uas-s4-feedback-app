@@ -6,6 +6,11 @@
         <div class="col-lg-12">
             <h2>Feedback List</h2>
             <a class="btn btn-success mb-2" href="{{ route('feedbacks.create') }}">Create New Feedback</a>
+            <a class="btn btn-primary mb-2" href="{{ route('feedbacks.pdf') }}">Print PDF</a>
+            <form action="{{ route('feedbacks.index') }}" method="GET" class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search" value="{{ request('search') }}">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
         </div>
     </div>
 
